@@ -1,4 +1,3 @@
 # PhoenixPlayer
-Android mobile music player app written in Kotlin as part of an individual project.
-
+Application Android lecteur de musique écrite en Kotlin dans le cadre d'un projet individuel.
 Trello : https://trello.com/b/offQafeZ/phoenixplayer
