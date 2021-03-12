@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         mediaPlayer.setVolume(.5f, .5f)
         totalTime = mediaPlayer.duration
 
+        volumeBar.max = systemAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         volumeBar.setOnSeekBarChangeListener(
             object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(
