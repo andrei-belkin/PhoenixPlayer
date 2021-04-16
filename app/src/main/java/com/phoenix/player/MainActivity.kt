@@ -19,8 +19,6 @@ class MainActivity : AppCompatActivity() {
         val seekBar = findViewById<SeekBar>(R.id.seekBar)
         val systemAudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
-        totalTime = mediaPlayer.duration
-
         volumeBar.max = systemAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         volumeBar.setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {
@@ -46,7 +44,7 @@ class MainActivity : AppCompatActivity() {
                 }
         )
 
-        seekBar.max = mediaPlayer.duration
+        seekBar.max = player.totalQueueDuration
         seekBar.setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(
@@ -57,12 +55,12 @@ class MainActivity : AppCompatActivity() {
                         println("Current raw time : $time")
 
                         if (fromUser)
-                            mediaPlayer.seekTo(time)
+                            player.mediaPlayer.seekTo(time)
                     }
 
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {
                         if (seekBar != null)
-                            seekBar.progress = mediaPlayer.currentPosition
+                            seekBar.progress = player.mediaPlayer.currentPosition
                     }
 
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -71,11 +69,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toggleIsAudioPlaying(playPauseToggleButton: View) {
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
+        if (player.mediaPlayer.isPlaying) {
+            player.mediaPlayer.pause()
             playPauseToggleButton.setBackgroundResource(R.drawable.track_play)
         } else {
-            mediaPlayer.start()
+            player.mediaPlayer.start()
             playPauseToggleButton.setBackgroundResource(R.drawable.track_pause)
         }
     }
@@ -84,6 +82,6 @@ class MainActivity : AppCompatActivity() {
     fun nextAudio(view: View) {}
 
     fun toggleQueueLoop(view: View) {
-        mediaPlayer.isLooping = !mediaPlayer.isLooping
+        player.mediaPlayer.isLooping = !player.mediaPlayer.isLooping
     }
 }

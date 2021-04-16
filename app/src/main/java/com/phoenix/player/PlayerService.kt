@@ -11,12 +11,11 @@ data class PlayerService(
         val queue: List<Int> = ArrayList(),
         val playerLoopingMode: PlayerLoopingMode = PlayerLoopingMode.LOOP_QUEUE
 ) {
-    private var mediaPlayer: MediaPlayer = MediaPlayer.create(context, queue.first())
-    private var totalQueueDuration = mediaPlayer.duration
+    var mediaPlayer: MediaPlayer = MediaPlayer.create(context, queue.first())
+    var totalQueueDuration: Int = mediaPlayer.duration
 
     init {
         mediaPlayer.setVolume(.5f, .5f)
-        mediaPlayer.setNextMediaPlayer(MediaPlayer.create(context, ))
     }
 
     enum class PlayerLoopingMode {

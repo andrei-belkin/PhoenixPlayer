@@ -11,13 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/black"
-        android:layout_marginBottom="15dp" />
+        android:layout_marginBottom="15dp"
+    >
+
+    </ListView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
-
+        android:gravity="center_horizontal"
+    >
         <TextView
             android:id="@+id/currentlyPlaying"
             android:layout_width="wrap_content"
@@ -26,8 +29,8 @@
             android:layout_margin="10dp"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textAlignment="center"/>
-
+            android:textAlignment="center"
+        />
     </LinearLayout>
 
     <SeekBar
@@ -35,28 +38,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:progress="50"
-        android:max="100" />
+        android:max="100"
+    />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center">
-
+        android:gravity="center"
+    >
         <TextView
             android:id="@+id/elapsedTimeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0:00" />
-
+            android:text="0:00"
+        />
         <Space
             android:layout_width="300dp"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+        />
         <TextView
             android:id="@+id/totalTimeText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="3:26" />
+            android:text="3:26"
+        />
     </LinearLayout>
 
     <LinearLayout
@@ -64,58 +69,59 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingTop="5dp"
-        android:paddingBottom="5dp">
-
+        android:paddingBottom="5dp"
+    >
         <Button
             android:id="@+id/queueLoopButton"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:background="@drawable/queue_loop_all"
-            android:onClick="toggleQueueLoop" />
-
+            android:onClick="toggleQueueLoop"
+        />
         <Space
             android:layout_width="30dp"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+        />
         <Button
             android:id="@+id/previousTrackButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/track_previous"
-            android:onClick="previousAudio" />
-
+            android:onClick="previousAudio"
+        />
         <Space
             android:layout_width="30dp"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+        />
         <Button
             android:id="@+id/playButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/track_play"
-            android:onClick="toggleIsAudioPlaying" />
-
+            android:onClick="toggleIsAudioPlaying"
+        />
         <Space
             android:layout_width="30dp"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+        />
         <Button
             android:id="@+id/nextTrackButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/track_next"
-            android:onClick="nextAudio" />
-
+            android:onClick="nextAudio"
+        />
         <Space
             android:layout_width="30dp"
-            android:layout_height="wrap_content"/>
-
+            android:layout_height="wrap_content"
+        />
         <Button
             android:id="@+id/queueShuffleButton"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:background="@drawable/queue_shuffle"
-            android:onClick="nextAudio" />
+            android:onClick="nextAudio"
+        />
     </LinearLayout>
 
     <LinearLayout
@@ -123,25 +129,26 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:padding="5dp">
-
+        android:padding="5dp"
+    >
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/volume_low"
-            android:contentDescription="@string/lower_volume_icon" />
-
+            android:contentDescription="@string/lower_volume_icon"
+        />
         <SeekBar
             android:id="@+id/volumeBar"
             android:layout_width="300dp"
             android:layout_height="match_parent"
             android:progress="10"
-            android:max="15" />
-
+            android:max="15"
+        />
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/volume_high"
-            android:contentDescription="@string/raise_volume_icon" />
+            android:contentDescription="@string/raise_volume_icon"
+        />
     </LinearLayout>
 </LinearLayout>
