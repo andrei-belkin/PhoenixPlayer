@@ -8,9 +8,9 @@
     tools:context=".MainActivity">
 
     <ListView
+        android:id="@+id/all_songs_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/black"
         android:layout_marginBottom="15dp"
     >
 
@@ -75,7 +75,7 @@
             android:id="@+id/queueLoopButton"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/queue_loop_all"
+            android:background="@drawable/loop_queue"
             android:onClick="toggleQueueLoop"
         />
         <Space
