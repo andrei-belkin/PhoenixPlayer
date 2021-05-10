@@ -1,18 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="bottom"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ListView
+        android:id="@+id/all_songs_list"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="15dp"
+    >
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </ListView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+    >
+        <TextView
+            android:id="@+id/currentlyPlaying"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/currently_playing_text"
+            android:layout_margin="10dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+        />
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="50"
+        android:max="100"
+    />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="5dp"
+    >
+        <TextView
+            android:id="@+id/elapsedTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0:00"
+        />
+        <Space
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+        />
+        <TextView
+            android:id="@+id/totalTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3:26"
+        />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+    >
+        <Button
+            android:id="@+id/queueLoopButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/loop_queue"
+            android:onClick="toggleQueueLoop"
+        />
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+        />
+        <Button
+            android:id="@+id/previousTrackButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/track_previous"
+            android:onClick="previousAudio"
+        />
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+        />
+        <Button
+            android:id="@+id/playButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/track_play"
+            android:onClick="toggleIsAudioPlaying"
+        />
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+        />
+        <Button
+            android:id="@+id/nextTrackButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/track_next"
+            android:onClick="nextAudio"
+        />
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+        />
+        <Button
+            android:id="@+id/queueShuffleButton"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:background="@drawable/shuffle_false"
+            android:onClick="toggleShuffle"
+        />
+    </LinearLayout>
+</LinearLayout>
