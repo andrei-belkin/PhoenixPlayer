@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">PhoenixPlayer</string>
+    <string name="lower_volume_icon">Lower volume icon</string>
+    <string name="raise_volume_icon">Raise volume icon</string>
+    <string name="currently_playing_text">Artist - Track Name</string>
 </resources>
