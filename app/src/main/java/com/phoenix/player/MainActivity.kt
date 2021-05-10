@@ -21,14 +21,15 @@ class MainActivity : AppCompatActivity() {
             R.raw.ddt___v_poslednyuyu_oseny
     )
     private var loopingMode: LoopingMode = LoopingMode.LOOP_QUEUE
+    private var isShuffling: Boolean = false
     private var currentTrack: Int = queue.first()
     private lateinit var mediaPlayer: MediaPlayer
 
     private lateinit var runnable: Runnable
 
     enum class LoopingMode {
-        LOOP_TRACK,
         LOOP_QUEUE,
+        LOOP_TRACK,
         NO_LOOP
     }
 
@@ -38,7 +39,10 @@ class MainActivity : AppCompatActivity() {
 
         mediaPlayer = MediaPlayer.create(this, currentTrack)
 
-        val arrayAdapter: ArrayAdapter<*> = ArrayAdapter(this, android.R.layout.simple_list_item_1, queue)
+        initSongsListView(queue)
+
+        val arrayAdapter: ArrayAdapter<*> =
+                ArrayAdapter(this, android.R.layout.simple_list_item_1, queue)
         val allSongsList = findViewById<ListView>(R.id.all_songs_list)
         allSongsList.adapter = arrayAdapter
 
@@ -49,32 +53,11 @@ class MainActivity : AppCompatActivity() {
             LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
         }
 
-        val volumeBar = findViewById<SeekBar>(R.id.volumeBar)
-        val systemAudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        volumeBar.max = systemAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        volumeBar.setOnSeekBarChangeListener(
-                object : SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(
-                            volumeBar: SeekBar?,
-                            volume: Int,
-                            fromUser: Boolean
-                    ) {
-                        println("Current raw volume : $volume")
-                        println("Current system volume : " + systemAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC))
-                        println("Max system volume : " + systemAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC))
-
-                        if (fromUser)
-                            systemAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0)
-                    }
-
-                    override fun onStartTrackingTouch(volumeBar: SeekBar?) {
-                        if (volumeBar != null)
-                            volumeBar.progress = systemAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-                    }
-
-                    override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-                }
-        )
+        val shuffleToggleButton = findViewById<Button>(R.id.queueShuffleButton)
+        if (isShuffling)
+            shuffleToggleButton.setBackgroundResource(R.drawable.shuffle_true)
+        else
+            shuffleToggleButton.setBackgroundResource(R.drawable.shuffle_false)
 
         val seekBar = findViewById<SeekBar>(R.id.seekBar)
         seekBar.max = mediaPlayer.duration.div(1000)
@@ -98,18 +81,28 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
                         if (seekBar != null)
-                            seekBar.progress = mediaPlayer.currentPosition / 1000
+                            seekBar.progress = mediaPlayer.currentPosition
                     }
                 }
         )
 
         runnable = Runnable {
-            seekBar.progress = mediaPlayer.currentPosition / 1000
+            while (true) {
+                seekBar.progress = mediaPlayer.currentPosition
+                Thread.sleep(500)
+                println("Updated seekbar : " + seekBar.progress)
+            }
         }
+
+        Thread(runnable)
 
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.setNextMediaPlayer(MediaPlayer.create(this, getNextAudio(currentTrack)))
         }
+    }
+
+    fun initSongsListView(queue: List<Int>) {
+        R.raw.
     }
 
     fun toggleIsAudioPlaying(playPauseToggleButton: View) {
@@ -136,7 +129,7 @@ class MainActivity : AppCompatActivity() {
         mediaPlayer.seekTo(mediaPlayer.duration)
     }
 
-    fun toggleQueueLoop(view: View) {
+    fun toggleQueueLoop(loopModeButton: View) {
         val currentModeIndex = LoopingMode.valueOf(loopingMode.name).ordinal
         val nextModeIndex = (currentModeIndex + 1) % (LoopingMode.values().size)
 
@@ -150,12 +143,16 @@ class MainActivity : AppCompatActivity() {
                 mediaPlayer.release()
             }
 
-        val loopModeButton = findViewById<Button>(R.id.queueLoopButton)
         when (loopingMode) {
             LoopingMode.LOOP_QUEUE -> loopModeButton.setBackgroundResource(R.drawable.loop_queue)
             LoopingMode.LOOP_TRACK -> loopModeButton.setBackgroundResource(R.drawable.loop_one_track)
             LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
         }
+    }
+
+    fun toggleShuffle(shuffleToggleButton: View) {
+        isShuffling = !isShuffling
+        shuffleToggleButton.setBackgroundResource(if (isShuffling) R.drawable.shuffle_true else R.drawable.shuffle_false)
     }
 
     private fun getNextAudio(currentTrack: Int): Int {

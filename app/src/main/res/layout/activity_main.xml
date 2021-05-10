@@ -45,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:paddingBottom="5dp"
     >
         <TextView
             android:id="@+id/elapsedTimeText"
@@ -68,8 +69,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:paddingBottom="10dp"
     >
         <Button
             android:id="@+id/queueLoopButton"
@@ -119,36 +119,8 @@
             android:id="@+id/queueShuffleButton"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            android:background="@drawable/queue_shuffle"
-            android:onClick="nextAudio"
-        />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:padding="5dp"
-    >
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/volume_low"
-            android:contentDescription="@string/lower_volume_icon"
-        />
-        <SeekBar
-            android:id="@+id/volumeBar"
-            android:layout_width="300dp"
-            android:layout_height="match_parent"
-            android:progress="10"
-            android:max="15"
-        />
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/volume_high"
-            android:contentDescription="@string/raise_volume_icon"
+            android:background="@drawable/shuffle_false"
+            android:onClick="toggleShuffle"
         />
     </LinearLayout>
 </LinearLayout>
