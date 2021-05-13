@@ -1,15 +1,16 @@
 package com.phoenix.player
 
-import android.content.Context
-import android.media.AudioManager
 import android.media.MediaPlayer
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ListView
-import android.widget.SeekBar
+import android.view.ViewGroup
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import com.phoenix.player.model.Queue
+import com.phoenix.player.model.Song
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private val queue: List<Int> = listOf(
@@ -20,22 +21,31 @@ class MainActivity : AppCompatActivity() {
             R.raw.bi2___pora_vozvrashhatysya_domoy,
             R.raw.ddt___v_poslednyuyu_oseny
     )
-    private var loopingMode: LoopingMode = LoopingMode.LOOP_QUEUE
+    private var loopingMode: Queue.LoopingMode = Queue.LoopingMode.LOOP_QUEUE
     private var isShuffling: Boolean = false
     private var currentTrack: Int = queue.first()
     private lateinit var mediaPlayer: MediaPlayer
 
     private lateinit var runnable: Runnable
 
-    enum class LoopingMode {
-        LOOP_QUEUE,
-        LOOP_TRACK,
-        NO_LOOP
+    private val songs: ArrayList<Song> = ArrayList()
+
+    private fun loadSongs() {
+        songs.add(Song("test1.mp3", "Майданов", "Кто такие русские", 140))
+        songs.add(Song("test2.mp3", "Пушной", "Красная Шапочка", 184))
+        songs.add(Song("test3.mp3", "Трофим", "Вне закона", 160))
+        songs.add(Song("test4.mp3", "Кино", "Спокойная ночь", 170))
+        songs.add(Song("test5.mp3", "Кино", "Звезда по имени Солнце", 140))
+        songs.add(Song("test6.mp3", "Кино", "Группа крови", 106))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        loadSongs()
+
+        println(MediaStore.Audio.Media.TITLE)
+
 
         mediaPlayer = MediaPlayer.create(this, currentTrack)
 
@@ -48,9 +58,9 @@ class MainActivity : AppCompatActivity() {
 
         val loopModeButton = findViewById<Button>(R.id.queueLoopButton)
         when (loopingMode) {
-            LoopingMode.LOOP_QUEUE -> loopModeButton.setBackgroundResource(R.drawable.loop_queue)
-            LoopingMode.LOOP_TRACK -> loopModeButton.setBackgroundResource(R.drawable.loop_one_track)
-            LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
+            Queue.LoopingMode.LOOP_QUEUE -> loopModeButton.setBackgroundResource(R.drawable.loop_queue)
+            Queue.LoopingMode.LOOP_TRACK -> loopModeButton.setBackgroundResource(R.drawable.loop_one_track)
+            Queue.LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
         }
 
         val shuffleToggleButton = findViewById<Button>(R.id.queueShuffleButton)
@@ -102,7 +112,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun initSongsListView(queue: List<Int>) {
-        R.raw.
+
     }
 
     fun toggleIsAudioPlaying(playPauseToggleButton: View) {
@@ -130,13 +140,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toggleQueueLoop(loopModeButton: View) {
-        val currentModeIndex = LoopingMode.valueOf(loopingMode.name).ordinal
-        val nextModeIndex = (currentModeIndex + 1) % (LoopingMode.values().size)
+        val currentModeIndex = Queue.LoopingMode.valueOf(loopingMode.name).ordinal
+        val nextModeIndex = (currentModeIndex + 1) % (Queue.LoopingMode.values().size)
 
-        loopingMode = LoopingMode.values()[nextModeIndex]
+        loopingMode = Queue.LoopingMode.values()[nextModeIndex]
 
-        mediaPlayer.isLooping = loopingMode == LoopingMode.LOOP_TRACK
-        if (loopingMode == LoopingMode.NO_LOOP)
+        mediaPlayer.isLooping = loopingMode == Queue.LoopingMode.LOOP_TRACK
+        if (loopingMode == Queue.LoopingMode.NO_LOOP)
             mediaPlayer.setOnCompletionListener {
                 mediaPlayer.stop()
                 mediaPlayer.reset()
@@ -144,9 +154,9 @@ class MainActivity : AppCompatActivity() {
             }
 
         when (loopingMode) {
-            LoopingMode.LOOP_QUEUE -> loopModeButton.setBackgroundResource(R.drawable.loop_queue)
-            LoopingMode.LOOP_TRACK -> loopModeButton.setBackgroundResource(R.drawable.loop_one_track)
-            LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
+            Queue.LoopingMode.LOOP_QUEUE -> loopModeButton.setBackgroundResource(R.drawable.loop_queue)
+            Queue.LoopingMode.LOOP_TRACK -> loopModeButton.setBackgroundResource(R.drawable.loop_one_track)
+            Queue.LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
         }
     }
 
