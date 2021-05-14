@@ -8,12 +8,11 @@
     tools:context=".MainActivity">
 
     <ListView
-        android:id="@+id/all_songs_list"
+        android:id="@+id/allSongsList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-    >
-        
+        android:layout_height="518dp"
+        android:layout_marginBottom="15dp">
+
     </ListView>
 
     <LinearLayout

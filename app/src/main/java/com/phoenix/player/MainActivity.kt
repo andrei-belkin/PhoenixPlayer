@@ -1,76 +1,63 @@
 package com.phoenix.player
 
-import android.media.MediaPlayer
 import android.os.Bundle
-import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.phoenix.player.model.Queue
 import com.phoenix.player.model.Song
-import java.io.File
+import com.phoenix.player.service.PlayerService
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
-    private val queue: List<Int> = listOf(
-            R.raw.pushnoy___alisa,
-            R.raw.bi2___ee_glaza,
-            R.raw.bi2___hipster,
-            R.raw.bi2___polkovniku_nikto_ne_pishet,
-            R.raw.bi2___pora_vozvrashhatysya_domoy,
-            R.raw.ddt___v_poslednyuyu_oseny
-    )
-    private var loopingMode: Queue.LoopingMode = Queue.LoopingMode.LOOP_QUEUE
-    private var isShuffling: Boolean = false
-    private var currentTrack: Int = queue.first()
-    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var queue: Queue
+    private lateinit var playerService: PlayerService
 
-    private lateinit var runnable: Runnable
+    private fun getSongs(): ArrayList<Song> {
+        val songs: ArrayList<Song> = ArrayList()
 
-    private val songs: ArrayList<Song> = ArrayList()
+        songs.add(Song(R.raw.bi2___ee_glaza, "Би-2 - Её глаза"))
+        songs.add(Song(R.raw.bi2___pora_vozvrashhatysya_domoy, "Би-2 - Пора возвращаться домой"))
+        songs.add(Song(R.raw.bi2___hipster, "Би-2 - Хипстер"))
+        songs.add(Song(R.raw.pushnoy___ne_plachy_obo_mne, "Пушной - Не плачь обо мне"))
+        songs.add(Song(R.raw.voskresenie___kto_vinovat, "Воскресенье - Кто виноват"))
 
-    private fun loadSongs() {
-        songs.add(Song("test1.mp3", "Майданов", "Кто такие русские", 140))
-        songs.add(Song("test2.mp3", "Пушной", "Красная Шапочка", 184))
-        songs.add(Song("test3.mp3", "Трофим", "Вне закона", 160))
-        songs.add(Song("test4.mp3", "Кино", "Спокойная ночь", 170))
-        songs.add(Song("test5.mp3", "Кино", "Звезда по имени Солнце", 140))
-        songs.add(Song("test6.mp3", "Кино", "Группа крови", 106))
+//        val musicDir = File("/sdcard/Music")
+//        val musicFileExtensions: ArrayList<String> = ArrayList()
+//        musicFileExtensions.add(".mp3")
+//        musicFileExtensions.add(".m4a")
+//        musicFileExtensions.add(".wav")
+//        musicFileExtensions.add(".ogg")
+
+//        for (file in musicDir.list())
+//            println(file)
+//        musicDir.listFiles()
+////                .filter { it.isFile && musicFileExtensions.contains(it.name.split(".").last().toLowerCase(Locale.ROOT)) }
+//                .map { songs.add(Song(it.name, it.name.split(".")[0])) }
+
+//        songs.map { println("Test : " + it.fileName) }
+
+        return songs
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        loadSongs()
 
-        println(MediaStore.Audio.Media.TITLE)
+        val listOfSongs = getSongs()
 
+        queue = Queue(listOfSongs, Queue.LoopingMode.LOOP_QUEUE, Queue.ShufflingMode.NO_SHUFFLE)
+        playerService = PlayerService(this, queue)
+        findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
 
-        mediaPlayer = MediaPlayer.create(this, currentTrack)
-
-        initSongsListView(queue)
-
-        val arrayAdapter: ArrayAdapter<*> =
-                ArrayAdapter(this, android.R.layout.simple_list_item_1, queue)
-        val allSongsList = findViewById<ListView>(R.id.all_songs_list)
-        allSongsList.adapter = arrayAdapter
-
-        val loopModeButton = findViewById<Button>(R.id.queueLoopButton)
-        when (loopingMode) {
-            Queue.LoopingMode.LOOP_QUEUE -> loopModeButton.setBackgroundResource(R.drawable.loop_queue)
-            Queue.LoopingMode.LOOP_TRACK -> loopModeButton.setBackgroundResource(R.drawable.loop_one_track)
-            Queue.LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
-        }
-
-        val shuffleToggleButton = findViewById<Button>(R.id.queueShuffleButton)
-        if (isShuffling)
-            shuffleToggleButton.setBackgroundResource(R.drawable.shuffle_true)
-        else
-            shuffleToggleButton.setBackgroundResource(R.drawable.shuffle_false)
+        val songsDisplayNames = arrayOfNulls<String>(listOfSongs.size)
+        for (i in 0 until listOfSongs.size)
+            songsDisplayNames[i] = listOfSongs[i].displayName
+        val adapter: ArrayAdapter<*> = ArrayAdapter(this, android.R.layout.simple_list_item_1, songsDisplayNames)
+        findViewById<ListView>(R.id.allSongsList).adapter = adapter
 
         val seekBar = findViewById<SeekBar>(R.id.seekBar)
-        seekBar.max = mediaPlayer.duration.div(1000)
+        seekBar.max = playerService.mediaPlayer.duration.div(1000)
         seekBar.setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(
@@ -81,79 +68,46 @@ class MainActivity : AppCompatActivity() {
                         println("Current raw time : $time")
 
                         if (fromUser)
-                            mediaPlayer.seekTo(time)
+                            playerService.mediaPlayer.seekTo(time)
                     }
 
                     override fun onStartTrackingTouch(seekBar: SeekBar?) {
                         if (seekBar != null)
-                            seekBar.progress = mediaPlayer.currentPosition / 1000
+                            seekBar.progress = playerService.mediaPlayer.currentPosition / 1000
                     }
 
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
                         if (seekBar != null)
-                            seekBar.progress = mediaPlayer.currentPosition
+                            seekBar.progress = playerService.mediaPlayer.currentPosition
                     }
                 }
         )
-
-        runnable = Runnable {
-            while (true) {
-                seekBar.progress = mediaPlayer.currentPosition
-                Thread.sleep(500)
-                println("Updated seekbar : " + seekBar.progress)
-            }
-        }
-
-        Thread(runnable)
-
-        mediaPlayer.setOnPreparedListener {
-            mediaPlayer.setNextMediaPlayer(MediaPlayer.create(this, getNextAudio(currentTrack)))
-        }
-    }
-
-    fun initSongsListView(queue: List<Int>) {
-
     }
 
     fun toggleIsAudioPlaying(playPauseToggleButton: View) {
-        if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
+        val isPlaying = playerService.togglePause()
+
+        if (isPlaying)
             playPauseToggleButton.setBackgroundResource(R.drawable.track_play)
-        } else {
-            mediaPlayer.start()
+        else
             playPauseToggleButton.setBackgroundResource(R.drawable.track_pause)
-        }
+
+        findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
     }
 
     fun previousAudio(view: View) {
-        if (mediaPlayer.currentPosition.toDouble() / mediaPlayer.duration.toDouble() < 0.05)
-            mediaPlayer.selectTrack(0)
-        else
-            mediaPlayer.seekTo(0)
-
-        println("Current time : " + mediaPlayer.currentPosition.toDouble())
-        println("Max time : " + mediaPlayer.duration.toDouble())
+        playerService.rewind()
+        findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
     }
 
     fun nextAudio(view: View) {
-        mediaPlayer.seekTo(mediaPlayer.duration)
+        playerService.fastForward()
+        findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
     }
 
     fun toggleQueueLoop(loopModeButton: View) {
-        val currentModeIndex = Queue.LoopingMode.valueOf(loopingMode.name).ordinal
-        val nextModeIndex = (currentModeIndex + 1) % (Queue.LoopingMode.values().size)
-
-        loopingMode = Queue.LoopingMode.values()[nextModeIndex]
-
-        mediaPlayer.isLooping = loopingMode == Queue.LoopingMode.LOOP_TRACK
-        if (loopingMode == Queue.LoopingMode.NO_LOOP)
-            mediaPlayer.setOnCompletionListener {
-                mediaPlayer.stop()
-                mediaPlayer.reset()
-                mediaPlayer.release()
-            }
-
-        when (loopingMode) {
+        playerService.cycleLoopModes(queue, playerService.mediaPlayer)
+        when (queue.loopingMode) {
             Queue.LoopingMode.LOOP_QUEUE -> loopModeButton.setBackgroundResource(R.drawable.loop_queue)
             Queue.LoopingMode.LOOP_TRACK -> loopModeButton.setBackgroundResource(R.drawable.loop_one_track)
             Queue.LoopingMode.NO_LOOP -> loopModeButton.setBackgroundResource(R.drawable.loop_none)
@@ -161,14 +115,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun toggleShuffle(shuffleToggleButton: View) {
-        isShuffling = !isShuffling
-        shuffleToggleButton.setBackgroundResource(if (isShuffling) R.drawable.shuffle_true else R.drawable.shuffle_false)
-    }
+        playerService.toggleShuffling(queue)
 
-    private fun getNextAudio(currentTrack: Int): Int {
-        val currentTrackIndex = queue.indexOf(currentTrack)
-        val nextTrackIndex = (currentTrackIndex + 1) % (queue.size - 1)
-
-        return queue[nextTrackIndex]
+        when (queue.shufflingMode) {
+            Queue.ShufflingMode.SHUFFLE -> shuffleToggleButton.setBackgroundResource(R.drawable.shuffle_true)
+            Queue.ShufflingMode.NO_SHUFFLE -> shuffleToggleButton.setBackgroundResource(R.drawable.shuffle_false)
+        }
     }
 }

@@ -2,21 +2,94 @@ package com.phoenix.player.service
 
 import android.content.Context
 import android.media.MediaPlayer
-import android.net.Uri
 import com.phoenix.player.model.Queue
 import com.phoenix.player.model.Song
-import java.io.File
+import kotlin.random.Random
 
-class PlayerService(
-        queue: Queue,
-        context: Context
-) {
-    var mediaPlayer: MediaPlayer = MediaPlayer.create(context, Uri.fromFile(File(queue.currentlyPlayingSong.fileName)))
+class PlayerService(private val context: Context, private val queue: Queue) {
+    var mediaPlayer: MediaPlayer = MediaPlayer.create(context, queue.currentlyPlayingSong.fileId)
 
     init {
         mediaPlayer.setOnCompletionListener {
-            val nextSong: Song = QueueService.getNextTrack(queue) ?: return@setOnCompletionListener
-            mediaPlayer = MediaPlayer.create(context, Uri.fromFile(File(nextSong.fileName)))
+            mediaPlayer.release()
+            val nextSong: Song = getNextTrack(queue)
+            mediaPlayer = MediaPlayer.create(context, nextSong.fileId)
         }
+    }
+
+    fun togglePause(): Boolean {
+        if (mediaPlayer.isPlaying)
+            mediaPlayer.pause()
+        else
+            mediaPlayer.start()
+
+        return mediaPlayer.isPlaying
+    }
+
+    fun rewind() {
+        if (mediaPlayer.currentPosition < 5000) {
+            queue.currentlyPlayingSong = getPreviousTrack(queue)
+            mediaPlayer = MediaPlayer.create(context, queue.currentlyPlayingSong.fileId)
+        } else
+            mediaPlayer.seekTo(0)
+    }
+
+    fun fastForward() {
+        mediaPlayer.release()
+        queue.currentlyPlayingSong = getNextTrack(queue)
+        mediaPlayer = MediaPlayer.create(context, queue.currentlyPlayingSong.fileId)
+    }
+
+    fun getNextTrack(queue: Queue): Song {
+        if (queue.shufflingMode == Queue.ShufflingMode.SHUFFLE)
+            return queue.songsList[Random.nextInt(0, queue.songsList.size)]
+        when (queue.loopingMode) {
+            Queue.LoopingMode.LOOP_QUEUE -> return queue.songsList[(queue.songsList.indexOf(queue.currentlyPlayingSong) + 1) % (queue.songsList.size)]
+            Queue.LoopingMode.LOOP_TRACK -> return queue.currentlyPlayingSong
+            Queue.LoopingMode.NO_LOOP -> {
+                val nextIndex = queue.songsList.indexOf(queue.currentlyPlayingSong) + 1
+                if (nextIndex > queue.songsList.size - 1)
+                    return queue.currentlyPlayingSong
+                return queue.songsList[nextIndex]
+            }
+        }
+    }
+
+    private fun getPreviousTrack(queue: Queue): Song {
+        val currentIndex: Int = queue.songsList.indexOf(queue.currentlyPlayingSong)
+
+        when (queue.loopingMode) {
+            Queue.LoopingMode.LOOP_QUEUE -> {
+                if (currentIndex == 0)
+                    return queue.songsList.last()
+                return queue.songsList[(currentIndex - 1) % (queue.songsList.size - 1)]
+            }
+            Queue.LoopingMode.LOOP_TRACK -> return queue.currentlyPlayingSong
+            Queue.LoopingMode.NO_LOOP -> {
+                val nextIndex = currentIndex + 1
+                if (nextIndex > queue.songsList.size - 1)
+                    return queue.currentlyPlayingSong
+                return queue.songsList[nextIndex]
+            }
+        }
+    }
+
+    fun cycleLoopModes(queue: Queue, mediaPlayer: MediaPlayer) {
+        val currentModeIndex = Queue.LoopingMode.valueOf(queue.loopingMode.name).ordinal
+        val nextModeIndex = (currentModeIndex + 1) % (Queue.LoopingMode.values().size)
+
+        queue.loopingMode = Queue.LoopingMode.values()[nextModeIndex]
+
+        mediaPlayer.isLooping = queue.loopingMode == Queue.LoopingMode.LOOP_TRACK
+        if (queue.loopingMode == Queue.LoopingMode.NO_LOOP)
+            mediaPlayer.setOnCompletionListener {
+                mediaPlayer.stop()
+                mediaPlayer.reset()
+                mediaPlayer.release()
+            }
+    }
+
+    fun toggleShuffling(queue: Queue) {
+        queue.shufflingMode = Queue.ShufflingMode.values()[(queue.shufflingMode.ordinal + 1) % Queue.ShufflingMode.values().size]
     }
 }
