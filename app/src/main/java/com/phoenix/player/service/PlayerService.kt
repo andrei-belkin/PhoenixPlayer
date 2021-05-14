@@ -92,4 +92,12 @@ class PlayerService(private val context: Context, private val queue: Queue) {
     fun toggleShuffling(queue: Queue) {
         queue.shufflingMode = Queue.ShufflingMode.values()[(queue.shufflingMode.ordinal + 1) % Queue.ShufflingMode.values().size]
     }
+
+    fun getSongDuration(): String {
+        val songDuration = mediaPlayer.duration / 1000
+        var minutes = (songDuration % 60).toString()
+        if (minutes.length == 1)
+            minutes = "0$minutes"
+        return String.format("%s:%s", songDuration / 60, minutes)
+    }
 }

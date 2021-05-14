@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         queue = Queue(listOfSongs, Queue.LoopingMode.LOOP_QUEUE, Queue.ShufflingMode.NO_SHUFFLE)
         playerService = PlayerService(this, queue)
         findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
+        findViewById<TextView>(R.id.totalTimeText).text = playerService.getSongDuration()
 
         val songsDisplayNames = arrayOfNulls<String>(listOfSongs.size)
         for (i in 0 until listOfSongs.size)
@@ -93,16 +94,19 @@ class MainActivity : AppCompatActivity() {
             playPauseToggleButton.setBackgroundResource(R.drawable.track_pause)
 
         findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
+        findViewById<TextView>(R.id.totalTimeText).text = playerService.getSongDuration()
     }
 
     fun previousAudio(view: View) {
         playerService.rewind()
         findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
+        findViewById<TextView>(R.id.totalTimeText).text = playerService.getSongDuration()
     }
 
     fun nextAudio(view: View) {
         playerService.fastForward()
         findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
+        findViewById<TextView>(R.id.totalTimeText).text = playerService.getSongDuration()
     }
 
     fun toggleQueueLoop(loopModeButton: View) {
