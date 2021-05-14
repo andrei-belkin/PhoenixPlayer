@@ -40,7 +40,7 @@ class PlayerService(private val context: Context, private val queue: Queue) {
         mediaPlayer = MediaPlayer.create(context, queue.currentlyPlayingSong.fileId)
     }
 
-    fun getNextTrack(queue: Queue): Song {
+    private fun getNextTrack(queue: Queue): Song {
         if (queue.shufflingMode == Queue.ShufflingMode.SHUFFLE)
             return queue.songsList[Random.nextInt(0, queue.songsList.size)]
         when (queue.loopingMode) {
