@@ -29,15 +29,20 @@ class PlayerService(private val context: Context, private val queue: Queue) {
     fun rewind() {
         if (mediaPlayer.currentPosition < 5000) {
             queue.currentlyPlayingSong = getPreviousTrack(queue)
+            mediaPlayer.stop()
+            mediaPlayer.release()
             mediaPlayer = MediaPlayer.create(context, queue.currentlyPlayingSong.fileId)
+            mediaPlayer.start()
         } else
             mediaPlayer.seekTo(0)
     }
 
     fun fastForward() {
+        mediaPlayer.stop()
         mediaPlayer.release()
         queue.currentlyPlayingSong = getNextTrack(queue)
         mediaPlayer = MediaPlayer.create(context, queue.currentlyPlayingSong.fileId)
+        mediaPlayer.start()
     }
 
     private fun getNextTrack(queue: Queue): Song {
@@ -99,5 +104,19 @@ class PlayerService(private val context: Context, private val queue: Queue) {
         if (minutes.length == 1)
             minutes = "0$minutes"
         return String.format("%s:%s", songDuration / 60, minutes)
+    }
+
+    fun getSongProgress(): Int = mediaPlayer.currentPosition / 1000
+
+    fun getSongProgressText(): String {
+        val songProgress = mediaPlayer.currentPosition / 1000
+        var minutes = (songProgress % 60).toString()
+        if (minutes.length == 1)
+            minutes = "0$minutes"
+        return String.format("%s:%s", songProgress / 60, minutes)
+    }
+
+    fun seekTo(time: Int) {
+        mediaPlayer.seekTo(time * 1000)
     }
 }

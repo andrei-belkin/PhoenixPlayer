@@ -1,13 +1,14 @@
 package com.phoenix.player
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.phoenix.player.model.Queue
 import com.phoenix.player.model.Song
 import com.phoenix.player.service.PlayerService
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private lateinit var queue: Queue
@@ -16,11 +17,13 @@ class MainActivity : AppCompatActivity() {
     private fun getSongs(): ArrayList<Song> {
         val songs: ArrayList<Song> = ArrayList()
 
-        songs.add(Song(R.raw.bi2___ee_glaza, "Би-2 - Её глаза"))
-        songs.add(Song(R.raw.bi2___pora_vozvrashhatysya_domoy, "Би-2 - Пора возвращаться домой"))
-        songs.add(Song(R.raw.bi2___hipster, "Би-2 - Хипстер"))
-        songs.add(Song(R.raw.pushnoy___ne_plachy_obo_mne, "Пушной - Не плачь обо мне"))
-        songs.add(Song(R.raw.voskresenie___kto_vinovat, "Воскресенье - Кто виноват"))
+        songs.add(Song(R.raw.beatles__yesterday, "The Beatles - Yesterday"))
+        songs.add(Song(R.raw.eagles__hotel_california, "Eagles - Hotel California"))
+        songs.add(Song(R.raw.journey__dont_stop_believin, "Journey - Don't Stop Believin'"))
+        songs.add(Song(R.raw.kazood__never_gonna_give_you_up, "Kazoo'd - Never Gonna Give You Up"))
+        songs.add(Song(R.raw.red_hot_chili_peppers__californication, "Red Hot Chili Peppers - Californication"))
+        songs.add(Song(R.raw.soundtrack__james_bond, "James Bond - Orchestra Soundtracks"))
+        songs.add(Song(R.raw.violett_pi__marie_curie, "ViolettPI - Marie Curie"))
 
 //        val musicDir = File("/sdcard/Music")
 //        val musicFileExtensions: ArrayList<String> = ArrayList()
@@ -28,13 +31,13 @@ class MainActivity : AppCompatActivity() {
 //        musicFileExtensions.add(".m4a")
 //        musicFileExtensions.add(".wav")
 //        musicFileExtensions.add(".ogg")
-
+//
 //        for (file in musicDir.list())
 //            println(file)
 //        musicDir.listFiles()
 ////                .filter { it.isFile && musicFileExtensions.contains(it.name.split(".").last().toLowerCase(Locale.ROOT)) }
 //                .map { songs.add(Song(it.name, it.name.split(".")[0])) }
-
+//
 //        songs.map { println("Test : " + it.fileName) }
 
         return songs
@@ -58,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<ListView>(R.id.allSongsList).adapter = adapter
 
         val seekBar = findViewById<SeekBar>(R.id.seekBar)
-        seekBar.max = playerService.mediaPlayer.duration.div(1000)
+        seekBar.max = playerService.mediaPlayer.duration / 1000
         seekBar.setOnSeekBarChangeListener(
                 object : SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(
@@ -69,26 +72,33 @@ class MainActivity : AppCompatActivity() {
                         println("Current raw time : $time")
 
                         if (fromUser)
-                            playerService.mediaPlayer.seekTo(time)
+                            playerService.seekTo(time)
                     }
 
-                    override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                        if (seekBar != null)
-                            seekBar.progress = playerService.mediaPlayer.currentPosition / 1000
-                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
                     override fun onStopTrackingTouch(seekBar: SeekBar?) {
                         if (seekBar != null)
-                            seekBar.progress = playerService.mediaPlayer.currentPosition
+                            playerService.seekTo(seekBar.progress)
                     }
                 }
         )
+
+        val mainHandler = Handler(Looper.getMainLooper())
+
+        mainHandler.post(object : Runnable {
+            override fun run() {
+                seekBar.progress = playerService.getSongProgress()
+                findViewById<TextView>(R.id.elapsedTimeText).text = playerService.getSongProgressText()
+                mainHandler.postDelayed(this, 1000)
+            }
+        })
     }
 
     fun toggleIsAudioPlaying(playPauseToggleButton: View) {
         val isPlaying = playerService.togglePause()
 
-        if (isPlaying)
+        if (!isPlaying)
             playPauseToggleButton.setBackgroundResource(R.drawable.track_play)
         else
             playPauseToggleButton.setBackgroundResource(R.drawable.track_pause)
@@ -101,12 +111,26 @@ class MainActivity : AppCompatActivity() {
         playerService.rewind()
         findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
         findViewById<TextView>(R.id.totalTimeText).text = playerService.getSongDuration()
+
+        val isPlaying = playerService.mediaPlayer.isPlaying
+        val playPauseToggleButton = findViewById<Button>(R.id.playButton)
+        if (!isPlaying)
+            playPauseToggleButton.setBackgroundResource(R.drawable.track_play)
+        else
+            playPauseToggleButton.setBackgroundResource(R.drawable.track_pause)
     }
 
     fun nextAudio(view: View) {
         playerService.fastForward()
         findViewById<TextView>(R.id.currentlyPlaying).text = queue.currentlyPlayingSong.displayName
         findViewById<TextView>(R.id.totalTimeText).text = playerService.getSongDuration()
+
+        val isPlaying = playerService.mediaPlayer.isPlaying
+        val playPauseToggleButton = findViewById<Button>(R.id.playButton)
+        if (!isPlaying)
+            playPauseToggleButton.setBackgroundResource(R.drawable.track_play)
+        else
+            playPauseToggleButton.setBackgroundResource(R.drawable.track_pause)
     }
 
     fun toggleQueueLoop(loopModeButton: View) {
